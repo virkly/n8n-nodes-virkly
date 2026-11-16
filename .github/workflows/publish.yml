@@ -3,12 +3,12 @@
 #
 # Two jobs: `verify` installs dev dependencies, lints, builds, tests, scans and packs the tarball with
 # read-only permissions and no secrets. `publish` runs only on tags, installs nothing and publishes that
-# tarball; it alone can mint the OIDC token or see NPM_TOKEN, so no dependency code runs with publish rights.
+# tarball; it alone can mint the OIDC token, so no dependency code runs with publish rights.
 #
-# npm setup (see VERIFICATION.md): a trusted publisher can only be added to a package that already exists, so
-# the first publish uses an NPM_TOKEN repo secret. Then add the trusted publisher on npmjs.com
+# npm auth is trusted publishing (OIDC) only, configured on npmjs.com as
 #   GitHub Actions · owner: virkly · repository: n8n-nodes-virkly · workflow: publish.yml · environment: (blank)
-# and delete NPM_TOKEN. Trusted publishing only works on GitHub-hosted runners: keep `ubuntu-latest`.
+# with "Require 2FA and disallow tokens". No NPM_TOKEN exists. Trusted publishing only works on GitHub-hosted
+# runners: keep `ubuntu-latest`.
 #
 # Release: bump "version" in package.json on main, then `git tag v<version> && git push origin v<version>`.
 # Pull requests touching this file or package.json run `verify` with `npm publish --dry-run` on the tarball.
@@ -116,11 +116,5 @@ jobs:
           path: pkg
 
       # Publishing a tarball runs no package scripts, so no dependency code runs with publish rights.
-      - name: Publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -n "$NPM_TOKEN" ]; then
-            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
-          fi
-          npm publish ./pkg/*.tgz --provenance --access public
+      - name: Publish (trusted publishing, OIDC)
+        run: npm publish ./pkg/*.tgz --provenance --access public

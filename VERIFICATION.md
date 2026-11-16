@@ -51,8 +51,8 @@ Maps every requirement in n8n's docs to where this repo meets it. Sources (check
 | `@n8n/node-cli` ≥ 0.23.0 as devDependency | ✅ | `package.json` → `@n8n/node-cli: 0.56.4` |
 | Tag matches the package version | ✅ | `verify` fails if the tag isn't `v<package.json version>` or the tagged commit isn't on main |
 | Workflow proven without publishing | ✅ / 👤 | Pull requests touching the workflow or `package.json` run `verify`, ending in `npm publish --dry-run` on the tarball. 👤 A dry run stops before the upload, so the `publish` job (npm upgrade, artifact download, npm auth, provenance attestation) first runs on the real tag push: watch that run and check the npm page shows "Built and signed on GitHub Actions" |
-| First publish (npm auth) | 👤 | npm only lets you add a trusted publisher to a package that already exists, so the first publish uses a token: npmjs.com → Access Tokens → Generate New Token → Granular, packages "Read and write" for all packages (the package doesn't exist yet), 7-day expiry, bypass 2FA on. Save it as repo secret `NPM_TOKEN` (github.com/virkly/n8n-nodes-virkly → Settings → Secrets and variables → Actions). Then on main: `git tag v0.1.0 && git push origin v0.1.0` |
-| Switch to trusted publishing | 👤 | After the first publish: npmjs.com → n8n-nodes-virkly → Settings → Trusted Publisher → GitHub Actions: owner `virkly`, repository `n8n-nodes-virkly`, workflow `publish.yml`, environment blank. Then set Publishing access to "Require two-factor authentication and disallow tokens", delete the `NPM_TOKEN` secret and revoke the token |
+| First publish (npm auth) | ✅ | Done 2026-11-16: v0.1.0 published once with a 7-day granular token (npm only allows a trusted publisher on an existing package) |
+| Trusted publishing | ✅ | npmjs.com → n8n-nodes-virkly → Settings → Trusted Publisher → GitHub Actions: owner `virkly`, repository `n8n-nodes-virkly`, workflow `publish.yml`, environment blank. Since v0.1.1 every release goes through OIDC; the workflow has no token path. Publishing access: "Require two-factor authentication and disallow tokens" |
 
 ## Submission
 
