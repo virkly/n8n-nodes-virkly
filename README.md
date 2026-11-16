@@ -119,6 +119,12 @@ npm run lint  # n8n's community-node linter
 npm run scan  # n8n's community-package scanner on the npm pack tarball
 ```
 
+### Releasing
+
+Bump `version` in `package.json` on main, then push a matching tag: `git tag v0.1.0 && git push origin v0.1.0`.
+[`publish.yml`](.github/workflows/publish.yml) lints, builds, tests, scans and publishes to npm with provenance.
+[VERIFICATION.md](VERIFICATION.md) maps n8n's verification requirements to this repo.
+
 ## License
 
 [MIT](LICENSE.md)
