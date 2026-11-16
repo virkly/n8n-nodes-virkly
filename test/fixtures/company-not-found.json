@@ -1,0 +1,7 @@
+{
+	"error": {
+		"code": "COMPANY_NOT_FOUND",
+		"message": "No company found with CVR number 99999985",
+		"timestamp": "2026-11-16T11:19:40.372Z"
+	}
+}

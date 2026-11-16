@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-virkly.virkly",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Sales"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/virkly/n8n-nodes-virkly#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/virkly/n8n-nodes-virkly#readme"
+			}
+		]
+	}
+}

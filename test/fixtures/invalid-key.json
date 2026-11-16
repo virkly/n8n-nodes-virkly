@@ -1,0 +1,7 @@
+{
+	"error": {
+		"code": "INVALID_API_KEY",
+		"message": "API key not recognised. Check that it starts with vkly_live_ or vkly_test_ and has no stray whitespace, or create a new key at https://virkly.io/dashboard/settings/api-keys (revoked keys stop working immediately).",
+		"timestamp": "2026-11-16T11:20:00.000Z"
+	}
+}

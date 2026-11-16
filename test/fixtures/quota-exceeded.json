@@ -1,0 +1,13 @@
+{
+	"error": {
+		"code": "QUOTA_EXCEEDED",
+		"message": "You've used all 1,000 API calls in your plan this month. The quota resets on 1 December.",
+		"tier": "free",
+		"used": 1000,
+		"limit": 1000,
+		"reset": "2026-12-01T00:00:00.000Z",
+		"upgrade_url": "https://virkly.io/pricing",
+		"docs_url": "https://virkly.io/docs",
+		"timestamp": "2026-11-16T11:20:00.000Z"
+	}
+}
