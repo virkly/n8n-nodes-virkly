@@ -9,7 +9,8 @@ export const PAGE_LIMIT = 500;
 // 1,000 a month; n8n's default poll time is every minute).
 export const MIN_POLL_INTERVAL_MS = 55 * 60 * 1000;
 // Free and Pocket keys read the last 7 days of the feed; stay an hour inside that.
-export const WINDOW_MS = 7 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+export const WINDOW_MS = 7 * DAY_MS - 60 * 60 * 1000;
 
 /** Kept in the node's workflow static data between polls. */
 export interface PollState {
@@ -144,7 +145,8 @@ export async function pollChanges(
 }
 
 /**
- * "Fetch test event": the latest matching change from the last ~7 days, or null. Reads no state.
+ * "Fetch test event": the latest matching change, or null. Reads no state. Looks at the last day first (about
+ * one API call) and only reads the whole ~7-day window when that day has no match.
  * shortcut: stops after MAX_PAGES × PAGE_LIMIT rows (about 2.5× a normal week), raise if the feed grows.
  */
 export async function latestChange(
@@ -152,14 +154,17 @@ export async function latestChange(
 	filter: ChangeFilter,
 	now = new Date(),
 ): Promise<IDataObject | null> {
-	let position: IDataObject = { since: new Date(now.getTime() - WINDOW_MS).toISOString() };
-	let latest: IDataObject | null = null;
-	for (let page = 0; page < MAX_PAGES; page++) {
-		const res = await fetchPage(fetchFeed, filter, position);
-		if (res instanceof FeedError) throw res;
-		for (const change of res.changes) if (matches(change, filter)) latest = change;
-		if (!res.hasMore || !res.nextCursor) break;
-		position = { cursor: res.nextCursor };
+	for (const lookback of [DAY_MS, WINDOW_MS]) {
+		let position: IDataObject = { since: new Date(now.getTime() - lookback).toISOString() };
+		let latest: IDataObject | null = null;
+		for (let page = 0; page < MAX_PAGES; page++) {
+			const res = await fetchPage(fetchFeed, filter, position);
+			if (res instanceof FeedError) throw res;
+			for (const change of res.changes) if (matches(change, filter)) latest = change;
+			if (!res.hasMore || !res.nextCursor) break;
+			position = { cursor: res.nextCursor };
+		}
+		if (latest) return latest;
 	}
-	return latest;
+	return null;
 }
