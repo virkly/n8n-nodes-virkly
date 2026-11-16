@@ -1,13 +1,17 @@
 # Publishes n8n-nodes-virkly to npm with a provenance statement when a `v*` tag is pushed.
 # n8n only verifies community nodes published from GitHub Actions with provenance (since 2026-05-01).
 #
-# One-time npm setup (see VERIFICATION.md): add a trusted publisher on npmjs.com
+# Two jobs: `verify` installs dev dependencies, lints, builds, tests, scans and packs the tarball with
+# read-only permissions and no secrets. `publish` runs only on tags, installs nothing and publishes that
+# tarball; it alone can mint the OIDC token or see NPM_TOKEN, so no dependency code runs with publish rights.
+#
+# npm setup (see VERIFICATION.md): a trusted publisher can only be added to a package that already exists, so
+# the first publish uses an NPM_TOKEN repo secret. Then add the trusted publisher on npmjs.com
 #   GitHub Actions · owner: virkly · repository: n8n-nodes-virkly · workflow: publish.yml · environment: (blank)
-# Fallback only if trusted publishing can't do the first publish: an NPM_TOKEN repo secret
-# (granular token, read+write on this package). Delete it again once the trusted publisher works.
+# and delete NPM_TOKEN. Trusted publishing only works on GitHub-hosted runners: keep `ubuntu-latest`.
 #
 # Release: bump "version" in package.json on main, then `git tag v<version> && git push origin v<version>`.
-# Pull requests that touch this file or package.json run the same job with `npm publish --dry-run`.
+# Pull requests touching this file or package.json run `verify` with `npm publish --dry-run` on the tarball.
 
 name: Publish
 
@@ -26,17 +30,17 @@ concurrency:
   group: publish-${{ github.ref }}
   cancel-in-progress: false
 
-jobs:
-  publish:
-    name: Publish to npm
-    runs-on: ubuntu-latest
-    permissions:
-      # OIDC token for npm trusted publishing and the provenance attestation.
-      id-token: write
-      contents: read
+permissions:
+  contents: read
 
+jobs:
+  verify:
+    name: Verify and pack
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -44,16 +48,16 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      # npm trusted publishing (OIDC) needs npm >= 11.5.1; Node 22 ships npm 10.
-      - name: Upgrade npm
-        run: npm install -g npm@^11.5.1
-
-      - name: Tag must match package.json version
+      - name: Tag must match package.json version and be on main
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           version="$(node -p "require('./package.json').version")"
           if [ "$GITHUB_REF_NAME" != "v$version" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $version (expected v$version)"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME points at a commit that is not on main"
             exit 1
           fi
 
@@ -72,18 +76,51 @@ jobs:
       - name: n8n community-package scanner
         run: npm run scan
 
+      - name: Pack
+        run: |
+          mkdir -p pkg
+          npm pack --pack-destination pkg
+          ls -l pkg
+
+      - name: Dry-run publish of the tarball
+        run: npm publish ./pkg/*.tgz --access public --dry-run
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: pkg/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish to npm
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      # OIDC token for npm trusted publishing and the provenance attestation.
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Trusted publishing (OIDC) needs npm >= 11.5.1; Node 22 ships npm 10.
+      - name: Upgrade npm
+        run: npm install -g npm@11.6.2
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: pkg
+
+      # Publishing a tarball runs no package scripts, so no dependency code runs with publish rights.
       - name: Publish
         env:
-          # prepublishOnly (`n8n-node prerelease`) blocks any publish without RELEASE_MODE.
-          RELEASE_MODE: 'true'
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          DRY_RUN: ${{ !startsWith(github.ref, 'refs/tags/') }}
         run: |
           if [ -n "$NPM_TOKEN" ]; then
             npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
           fi
-          if [ "$DRY_RUN" = "true" ]; then
-            npm publish --provenance --access public --dry-run
-          else
-            npm publish --provenance --access public
-          fi
+          npm publish ./pkg/*.tgz --provenance --access public
