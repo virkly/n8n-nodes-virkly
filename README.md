@@ -78,6 +78,34 @@ error on the item instead.
 
 The node returns exactly what the API returns at the time of the call; it caches nothing.
 
+## Trigger
+
+### Virkly Trigger → Company Changed / Company Went Bankrupt
+
+Starts the workflow for each new change in virkly's change feed (`/v1/changes`), one item per change with the
+feed's fields: `cvr`, `name`, `type` (`status` or `name`), `oldValue`, `newValue`, `description`, `changedAt`,
+`recordedAt` and, for status changes, `statusDetail`.
+
+- **Event**: *Company Changed* (pick the change types: status, name) or *Company Went Bankrupt*: status changes to
+  `UNDER KONKURS`.
+- **CVR Numbers**: only these companies, separated by commas or new lines. Leave empty for every company.
+- **First activation** starts from "now", so you never get a flood of old changes. After that the trigger remembers
+  where it stopped and each change arrives exactly once, also after a pause (within your plan's history: 7 days on
+  Free and Pocket).
+- **Fetch Test Event** returns the latest matching change from the last 7 days, or says there is none yet.
+- **API calls**: the CVR register updates once a day, so the trigger asks virkly at most once an hour, whatever the
+  poll time is set to. That is about 720 calls a month, inside the Free plan's 1,000. On busy days a check can take
+  a few more calls (500 changes per call).
+
+### Example: customer goes bankrupt → Slack
+
+1. Add **Virkly Trigger**, choose *Company Went Bankrupt* and paste your customers' CVR numbers (export them from
+   your accounting system).
+2. Add a **Slack** node → *Send Message* to your credit-control channel, with the text
+   `{{ $json.name }} (CVR {{ $json.cvr }}) er gået konkurs: https://virkly.io/company/{{ $json.cvr }}`.
+3. Activate the workflow. When one of those customers is declared bankrupt, the message arrives within a few hours
+   of virkly's daily register update.
+
 ## Development
 
 ```bash

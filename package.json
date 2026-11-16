@@ -40,7 +40,8 @@
 			"dist/credentials/VirklyApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/Virkly/Virkly.node.js"
+			"dist/nodes/Virkly/Virkly.node.js",
+			"dist/nodes/VirklyTrigger/VirklyTrigger.node.js"
 		]
 	},
 	"devDependencies": {
