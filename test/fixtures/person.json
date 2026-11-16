@@ -1,0 +1,60 @@
+{
+	"enhedsNummer": 4000000001,
+	"name": "Test Person",
+	"roles": [
+		{
+			"cvr": 12345678,
+			"companyName": "Example ApS",
+			"role": "Director",
+			"roleCode": "Direktion",
+			"since": "2020-01-01",
+			"sinceIsPersonal": true,
+			"isActive": true,
+			"companyIsActive": true,
+			"companyStatus": "active",
+			"ownershipPercent": null,
+			"industryCode": "682040",
+			"industryDescription": "Udlejning af erhvervsejendomme",
+			"city": "Aarhus"
+		}
+	],
+	"stats": {
+		"totalCompanies": 23,
+		"activeRoles": 31,
+		"founderOf": 7,
+		"boardRoles": 3,
+		"directorRoles": 18
+	},
+	"roleTypes": [
+		{
+			"role": "Director",
+			"count": 17
+		},
+		{
+			"role": "Founder",
+			"count": 7
+		},
+		{
+			"role": "Board Member",
+			"count": 3
+		},
+		{
+			"role": "Owner",
+			"count": 2
+		},
+		{
+			"role": "Partner",
+			"count": 1
+		},
+		{
+			"role": "CEO",
+			"count": 1
+		}
+	],
+	"network": [],
+	"lastUpdated": "2026-11-16T12:06:54.733Z",
+	"noindex": false,
+	"_meta": {
+		"requestId": "02331a1f-579b-4c54-ac82-51b77889970f"
+	}
+}

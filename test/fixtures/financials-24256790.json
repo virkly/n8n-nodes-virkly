@@ -1,0 +1,135 @@
+{
+	"cvr": "24256790",
+	"companyName": "NOVO NORDISK A/S",
+	"latestFinancials": {
+		"year": 2025,
+		"periodStart": "2025-01-01",
+		"periodEnd": "2025-12-31",
+		"revenue": 309064000000,
+		"grossProfit": 250276000000,
+		"operatingProfit": 127658000000,
+		"profitBeforeTax": 130540000000,
+		"netProfit": 102434000000,
+		"equity": 194047000000,
+		"totalAssets": 542902000000,
+		"averageEmployees": null,
+		"proposedDividend": null,
+		"proposedExtraordinaryDividend": null,
+		"currency": "DKK",
+		"assuranceType": "audit",
+		"goingConcernType": null,
+		"goingConcernText": null,
+		"ratios": {
+			"solvency": 0.35742546536944053,
+			"returnOnAssets": 0.2531560723903654,
+			"returnOnEquity": 0.6069569493945777
+		}
+	},
+	"historicalData": [
+		{
+			"year": 2024,
+			"periodStart": "2024-01-01",
+			"periodEnd": "2024-12-31",
+			"revenue": 290403000000,
+			"grossProfit": 245881000000,
+			"operatingProfit": 128339000000,
+			"profitBeforeTax": 127191000000,
+			"netProfit": 100988000000,
+			"equity": 143486000000,
+			"totalAssets": 465630000000,
+			"averageEmployees": null,
+			"proposedDividend": null,
+			"proposedExtraordinaryDividend": null,
+			"currency": "DKK",
+			"assuranceType": "audit",
+			"goingConcernType": null,
+			"goingConcernText": null,
+			"ratios": {
+				"solvency": 0.3081545433069175,
+				"returnOnAssets": null,
+				"returnOnEquity": 0.8077521425971917
+			}
+		},
+		{
+			"year": 2023,
+			"periodStart": "2023-01-01",
+			"periodEnd": "2023-12-31",
+			"revenue": 232261000000,
+			"grossProfit": 196496000000,
+			"operatingProfit": 102574000000,
+			"profitBeforeTax": 104674000000,
+			"netProfit": 83683000000,
+			"equity": 106561000000,
+			"totalAssets": null,
+			"averageEmployees": null,
+			"proposedDividend": null,
+			"proposedExtraordinaryDividend": null,
+			"currency": "DKK",
+			"assuranceType": "audit",
+			"goingConcernType": null,
+			"goingConcernText": null,
+			"ratios": {
+				"solvency": null,
+				"returnOnAssets": null,
+				"returnOnEquity": 0.8806558377664473
+			}
+		},
+		{
+			"year": 2022,
+			"periodStart": "2022-01-01",
+			"periodEnd": "2022-12-31",
+			"revenue": 176954000000,
+			"grossProfit": 148506000000,
+			"operatingProfit": 74809000000,
+			"profitBeforeTax": 69062000000,
+			"netProfit": 55525000000,
+			"equity": 83486000000,
+			"totalAssets": null,
+			"averageEmployees": null,
+			"proposedDividend": null,
+			"proposedExtraordinaryDividend": null,
+			"currency": "DKK",
+			"assuranceType": null,
+			"goingConcernType": null,
+			"goingConcernText": null,
+			"ratios": {
+				"solvency": null,
+				"returnOnAssets": null,
+				"returnOnEquity": 0.7200191918667981
+			}
+		},
+		{
+			"year": 2021,
+			"periodStart": "2021-01-01",
+			"periodEnd": "2021-12-31",
+			"revenue": 140800000000,
+			"grossProfit": 117142000000,
+			"operatingProfit": 58644000000,
+			"profitBeforeTax": 59080000000,
+			"netProfit": 47757000000,
+			"equity": 70746000000,
+			"totalAssets": null,
+			"averageEmployees": null,
+			"proposedDividend": null,
+			"proposedExtraordinaryDividend": null,
+			"currency": "DKK",
+			"assuranceType": null,
+			"goingConcernType": null,
+			"goingConcernText": null,
+			"ratios": {
+				"solvency": null,
+				"returnOnAssets": null,
+				"returnOnEquity": null
+			}
+		}
+	],
+	"employees": {
+		"year": 2018,
+		"count": 16125,
+		"range": null
+	},
+	"lastUpdated": "2026-11-16T12:06:54.212Z",
+	"_meta": {
+		"requestId": "7a1f3f22-643f-46b6-9842-e1aaac0896a1"
+	}
+}

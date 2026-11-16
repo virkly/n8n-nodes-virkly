@@ -1,0 +1,45 @@
+{
+	"results": [
+		{
+			"cvr": "46924568",
+			"name": "Korrektur by Lysgaard",
+			"status": "active",
+			"address": {
+				"street": "Nymarks Allé 225",
+				"postalCode": "8320",
+				"city": "Mårslet"
+			},
+			"industry": {
+				"code": "821000",
+				"description": "Administrations- og kontorserviceaktiviteter"
+			},
+			"founded": "2026-11-13",
+			"reklamebeskyttet": false
+		},
+		{
+			"cvr": "46925866",
+			"name": "YOVI Cars ApS",
+			"status": "active",
+			"address": {
+				"street": "Fortevej 84B",
+				"postalCode": "8240",
+				"city": "Risskov"
+			},
+			"industry": {
+				"code": "467100",
+				"description": "Engroshandel med motorkøretøjer"
+			},
+			"founded": "2026-11-12",
+			"reklamebeskyttet": false
+		}
+	],
+	"persons": [],
+	"total": 47,
+	"hasMore": true,
+	"totalPersons": 0,
+	"limit": 2,
+	"offset": 0,
+	"_meta": {
+		"requestId": "2aed4e41-81af-41b7-afc2-b4bda5d92a59"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"error": {
+		"code": "PERSON_NOT_FOUND",
+		"message": "No person found with enhedsNummer 1",
+		"timestamp": "2026-11-16T12:06:54.953Z"
+	}
+}

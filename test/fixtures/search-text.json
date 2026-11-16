@@ -1,0 +1,44 @@
+{
+	"results": [
+		{
+			"cvr": "24256790",
+			"name": "NOVO NORDISK A/S",
+			"status": "active",
+			"address": {
+				"street": "Novo Alle 1",
+				"postalCode": "2880",
+				"city": "Bagsværd"
+			},
+			"industry": {
+				"code": "212000",
+				"description": "Fremstilling af farmaceutiske præparater"
+			},
+			"founded": "1931-11-28",
+			"reklamebeskyttet": false
+		},
+		{
+			"cvr": "13246149",
+			"name": "Novo Nordisk Pharmatech A/S",
+			"status": "active",
+			"address": {
+				"street": "Københavnsvej 216",
+				"postalCode": "4600",
+				"city": "Køge"
+			},
+			"industry": {
+				"code": "212000",
+				"description": "Fremstilling af farmaceutiske præparater"
+			},
+			"founded": "1989-07-01",
+			"reklamebeskyttet": false
+		}
+	],
+	"persons": [],
+	"total": 64,
+	"totalPersons": 0,
+	"limit": 2,
+	"offset": 0,
+	"_meta": {
+		"requestId": "3996be2f-d365-4823-b516-a128f5729ae3"
+	}
+}

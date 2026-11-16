@@ -1,0 +1,40 @@
+{
+	"total": 147,
+	"items": [
+		{
+			"cvr": "16267384",
+			"name": "KISTRAN ApS",
+			"slug": "kistran",
+			"legalForm": "APS",
+			"industryCode": "642120",
+			"industryDescription": "Ikke-finansielle holdingselskaber",
+			"municipality": "RUDERSDAL",
+			"bankruptAt": "2026-11-11T00:00:00.000Z"
+		},
+		{
+			"cvr": "26506646",
+			"name": "Mental Kapacitet ApS",
+			"slug": "mental-kapacitet",
+			"legalForm": "APS",
+			"industryCode": "476100",
+			"industryDescription": "Detailhandel med bøger",
+			"municipality": "FREDERIKSBERG",
+			"bankruptAt": "2026-11-11T00:00:00.000Z"
+		}
+	],
+	"industries": [
+		{
+			"code": "642120",
+			"description": "Ikke-finansielle holdingselskaber",
+			"count": 34
+		},
+		{
+			"code": "702000",
+			"description": "Virksomhedsrådgivning og anden ledelsesrådgivning",
+			"count": 6
+		}
+	],
+	"_meta": {
+		"requestId": "a9bd5757-cdf3-490e-8209-d75cad9395a9"
+	}
+}

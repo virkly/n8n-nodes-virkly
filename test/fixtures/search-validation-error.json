@@ -1,0 +1,8 @@
+{
+	"error": {
+		"code": "VALIDATION_ERROR",
+		"message": "Invalid request data",
+		"requestId": "ec111d45-8c5e-42ef-9b3e-e51e7672489d",
+		"timestamp": "2026-11-16T12:06:55.132Z"
+	}
+}
