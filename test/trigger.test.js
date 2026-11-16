@@ -197,6 +197,30 @@ test('a cursor older than the plan window restarts at the oldest readable point'
 	assert.equal(items.length, 1);
 });
 
+test('a stored start older than the plan window restarts too, and a second refusal is an error', async () => {
+	const feed = fakeFeed();
+	const state = {
+		since: at(-10 * 24 * HOUR).toISOString(),
+		lastPollAt: at(-2 * HOUR).toISOString(),
+	};
+	const refuseOld = async (qs) =>
+		qs.since < new Date(T0.getTime() - WINDOW_MS - 1000).toISOString()
+			? { statusCode: 403, body: { error: { code: 'CHANGES_WINDOW', message: '7 days' } } }
+			: feed.fetch(qs);
+	assert.deepEqual(await pollChanges(state, refuseOld, all, T0), []);
+	assert.equal(state.since, new Date(T0.getTime() - WINDOW_MS).toISOString());
+	const always = async () => ({
+		statusCode: 403,
+		body: { error: { code: 'CHANGES_WINDOW', message: '7 days' } },
+	});
+	await assert.rejects(pollChanges({ cursor: 'x' }, always, all, T0), /7 days/);
+});
+
+test('a 404 from the feed is an error, not an empty page', async () => {
+	const missing = async () => ({ statusCode: 404, body: {} });
+	await assert.rejects(latestChange(missing, all, T0), /no change feed/);
+});
+
 test('latestChange returns the newest matching change, or null', async () => {
 	const feed = fakeFeed({ pageSize: 2 });
 	feed.record(at(-3 * HOUR), { type: 'status', newValue: BANKRUPT_STATUS, cvr: '11111111' });

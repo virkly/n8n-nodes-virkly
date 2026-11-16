@@ -90,7 +90,11 @@ async function fetchPage(
 ): Promise<FeedPage | FeedError> {
 	const type = filter.bankruptOnly ? 'status' : filter.types.join(',');
 	const res = await fetch({ type, limit: PAGE_LIMIT, ...position });
-	const message = errorMessage(res.statusCode, res.body, '');
+	const message = errorMessage(
+		res.statusCode,
+		res.body,
+		'virkly has no change feed at this address (HTTP 404)',
+	);
 	if (!message) return res.body as FeedPage;
 	const code = ((res.body as IDataObject | undefined)?.error as IDataObject | undefined)?.code;
 	return new FeedError(res.statusCode, typeof code === 'string' ? code : undefined, message);
@@ -117,6 +121,8 @@ export async function pollChanges(
 	state.lastPollAt = now.toISOString();
 
 	const found: IDataObject[] = [];
+	let restarted = false;
+	let pagesRead = 0;
 	for (let page = 0; page < MAX_PAGES; page++) {
 		const res = await fetchPage(
 			fetch,
@@ -124,20 +130,22 @@ export async function pollChanges(
 			state.cursor ? { cursor: state.cursor } : { since: state.since },
 		);
 		if (res instanceof FeedError) {
-			if (res.code === 'CHANGES_WINDOW' && state.cursor) {
+			if (res.code === 'CHANGES_WINDOW' && !restarted) {
+				restarted = true;
 				// Paused longer than the plan's 7-day window: restart at the oldest point the plan can read
 				state.cursor = undefined;
 				state.since = new Date(now.getTime() - WINDOW_MS).toISOString();
 				continue;
 			}
 			// Emit what earlier pages already advanced past; the error resurfaces on the next poll
-			if (page > 0) break;
+			if (pagesRead > 0) break;
 			throw res;
 		}
 		if (res.nextCursor) {
 			state.cursor = res.nextCursor;
 			state.since = undefined;
 		}
+		pagesRead++;
 		found.push(...res.changes.filter((c) => matches(c, filter)));
 		if (!res.hasMore || !res.nextCursor) break;
 	}
