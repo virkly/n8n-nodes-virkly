@@ -98,7 +98,7 @@ export async function collect(
 	return all.slice(0, limit);
 }
 
-function apiError(body: unknown): { code?: string; message?: string } {
+export function apiError(body: unknown): { code?: string; message?: string } {
 	const error = (body as IDataObject | undefined)?.error as IDataObject | undefined;
 	return {
 		code: typeof error?.code === 'string' ? error.code : undefined,

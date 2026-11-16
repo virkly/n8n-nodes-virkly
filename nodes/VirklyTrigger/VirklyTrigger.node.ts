@@ -108,7 +108,7 @@ export class VirklyTrigger implements INodeType {
 		}
 		const filter: ChangeFilter = { types, cvrs, bankruptOnly };
 
-		const fetch: FetchFeed = async (qs) => {
+		const fetchFeed: FetchFeed = async (qs) => {
 			try {
 				return (await this.helpers.httpRequestWithAuthentication.call(
 					this,
@@ -123,7 +123,7 @@ export class VirklyTrigger implements INodeType {
 
 		try {
 			if (this.getMode() === 'manual') {
-				const latest = await latestChange(fetch, filter);
+				const latest = await latestChange(fetchFeed, filter);
 				if (!latest) {
 					throw new NodeOperationError(
 						this.getNode(),
@@ -133,7 +133,7 @@ export class VirklyTrigger implements INodeType {
 				return [this.helpers.returnJsonArray([latest])];
 			}
 			const state = this.getWorkflowStaticData('node') as PollState;
-			const changes = await pollChanges(state, fetch, filter);
+			const changes = await pollChanges(state, fetchFeed, filter);
 			return changes.length > 0 ? [this.helpers.returnJsonArray(changes)] : null;
 		} catch (error) {
 			throw error instanceof FeedError

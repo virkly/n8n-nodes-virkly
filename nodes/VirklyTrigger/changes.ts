@@ -1,5 +1,5 @@
 import type { IDataObject, IHttpRequestOptions } from 'n8n-workflow';
-import { BASE_URL, errorMessage, normalizeCvr, USER_AGENT } from '../Virkly/transport';
+import { apiError, apiRequest, errorMessage, normalizeCvr } from '../Virkly/transport';
 
 /** The feed's status value for a company that has gone bankrupt (normalised, see virkly /v1/changes). */
 export const BANKRUPT_STATUS = 'UNDER KONKURS';
@@ -49,16 +49,9 @@ export class FeedError extends Error {
 	}
 }
 
+/** GET /v1/changes */
 export function changesRequest(qs: IDataObject): IHttpRequestOptions {
-	return {
-		method: 'GET',
-		url: `${BASE_URL}/v1/changes`,
-		qs,
-		headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
-		json: true,
-		returnFullResponse: true,
-		ignoreHttpStatusErrors: true,
-	};
+	return apiRequest('/v1/changes', qs);
 }
 
 /** Comma/newline/semicolon separated CVRs → a set, plus the entries that aren't CVR numbers. */
@@ -84,20 +77,18 @@ export function matches(change: IDataObject, filter: ChangeFilter): boolean {
 
 /** One page of the feed, or the API's error as a FeedError (returned, so callers can react to it). */
 async function fetchPage(
-	fetch: FetchFeed,
+	fetchFeed: FetchFeed,
 	filter: ChangeFilter,
 	position: IDataObject,
 ): Promise<FeedPage | FeedError> {
-	const type = filter.bankruptOnly ? 'status' : filter.types.join(',');
-	const res = await fetch({ type, limit: PAGE_LIMIT, ...position });
+	const res = await fetchFeed({ type: filter.types.join(','), limit: PAGE_LIMIT, ...position });
 	const message = errorMessage(
 		res.statusCode,
 		res.body,
 		'virkly has no change feed at this address (HTTP 404)',
 	);
 	if (!message) return res.body as FeedPage;
-	const code = ((res.body as IDataObject | undefined)?.error as IDataObject | undefined)?.code;
-	return new FeedError(res.statusCode, typeof code === 'string' ? code : undefined, message);
+	return new FeedError(res.statusCode, apiError(res.body).code, message);
 }
 
 /**
@@ -106,7 +97,7 @@ async function fetchPage(
  */
 export async function pollChanges(
 	state: PollState,
-	fetch: FetchFeed,
+	fetchFeed: FetchFeed,
 	filter: ChangeFilter,
 	now = new Date(),
 ): Promise<IDataObject[]> {
@@ -125,7 +116,7 @@ export async function pollChanges(
 	let pagesRead = 0;
 	for (let page = 0; page < MAX_PAGES; page++) {
 		const res = await fetchPage(
-			fetch,
+			fetchFeed,
 			filter,
 			state.cursor ? { cursor: state.cursor } : { since: state.since },
 		);
@@ -157,14 +148,14 @@ export async function pollChanges(
  * shortcut: stops after MAX_PAGES × PAGE_LIMIT rows (about 2.5× a normal week), raise if the feed grows.
  */
 export async function latestChange(
-	fetch: FetchFeed,
+	fetchFeed: FetchFeed,
 	filter: ChangeFilter,
 	now = new Date(),
 ): Promise<IDataObject | null> {
 	let position: IDataObject = { since: new Date(now.getTime() - WINDOW_MS).toISOString() };
 	let latest: IDataObject | null = null;
 	for (let page = 0; page < MAX_PAGES; page++) {
-		const res = await fetchPage(fetch, filter, position);
+		const res = await fetchPage(fetchFeed, filter, position);
 		if (res instanceof FeedError) throw res;
 		for (const change of res.changes) if (matches(change, filter)) latest = change;
 		if (!res.hasMore || !res.nextCursor) break;
