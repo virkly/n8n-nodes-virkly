@@ -403,6 +403,35 @@ test('every operation shares the quota error with the upgrade link', async () =>
 	}
 });
 
+const rateLimited = {
+	statusCode: 429,
+	headers: { 'retry-after': '1' },
+	body: { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Rate limit exceeded.' } },
+};
+
+test('a per-minute 429 waits Retry-After and retries, keeping Return All pages', async () => {
+	const body = fixture('search-segment');
+	const ctx = context(
+		[search({ returnAll: true, filters: { municipality: 'Aarhus' } })],
+		(opts, n) => (n === 2 ? rateLimited : { statusCode: 200, body: { ...body, hasMore: n === 1 } }),
+	);
+	const [items] = await run(ctx);
+	assert.deepEqual(
+		ctx.calls.map((c) => c.options.qs.offset),
+		[0, 100, 100],
+	);
+	assert.equal(items.length, 4);
+});
+
+test('a per-minute 429 gives up after two retries; a used-up quota is never retried', async () => {
+	const limited = context([search({ q: 'novo' })], () => rateLimited);
+	await assert.rejects(run(limited), /Too many requests per minute/);
+	assert.equal(limited.calls.length, 3);
+	const quota = context(['24256790'], () => ({ statusCode: 429, body: fixture('quota-exceeded') }));
+	await assert.rejects(run(quota), /pricing/);
+	assert.equal(quota.calls.length, 1);
+});
+
 test('package.json has no runtime dependencies', () => {
 	assert.equal(require('../package.json').dependencies, undefined);
 });

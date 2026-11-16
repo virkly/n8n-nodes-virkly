@@ -60,13 +60,15 @@ Example: Period `Last 7 Days`, Return All on, then an IF node on `municipality` 
 A person's roles in companies (director, board, owner, founder) by their **enhedsNummer**, the participant
 number in the CVR register (the number at the end of a person page URL on virkly.io).
 
-Example: enhedsNummer `4000115446` returns the person's name and `roles`.
+Example: open a person page on virkly.io, copy the number at the end of its URL, and Person → Get returns the
+person's name and `roles`.
 
 ### Paging and API calls
 
 Search and Get Many return up to **Limit** results, or everything with **Return All**. Every call to virkly counts
 as one API call on your plan, and Return All fetches page after page: 100 companies or 50 bankruptcies per call.
-Search stops at 10,000 results; narrow a bigger segment with the founding dates.
+Search stops at 10,000 results; narrow a bigger segment with the founding dates. When a page hits your plan's
+per-minute limit (10 calls a minute on Free), the node waits as long as virkly asks (at most a minute) and retries.
 
 ### Errors
 

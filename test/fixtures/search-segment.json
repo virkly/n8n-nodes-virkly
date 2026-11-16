@@ -1,13 +1,13 @@
 {
 	"results": [
 		{
-			"cvr": "46924568",
-			"name": "Korrektur by Lysgaard",
+			"cvr": "12345678",
+			"name": "Example Consulting ApS",
 			"status": "active",
 			"address": {
-				"street": "Nymarks Allé 225",
-				"postalCode": "8320",
-				"city": "Mårslet"
+				"street": "Eksempelvej 1",
+				"postalCode": "8000",
+				"city": "Aarhus C"
 			},
 			"industry": {
 				"code": "821000",
@@ -17,11 +17,11 @@
 			"reklamebeskyttet": false
 		},
 		{
-			"cvr": "46925866",
-			"name": "YOVI Cars ApS",
+			"cvr": "87654321",
+			"name": "Example Cars ApS",
 			"status": "active",
 			"address": {
-				"street": "Fortevej 84B",
+				"street": "Eksempelvej 2",
 				"postalCode": "8240",
 				"city": "Risskov"
 			},

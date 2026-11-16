@@ -2,6 +2,7 @@ import {
 	NodeApiError,
 	NodeConnectionTypes,
 	NodeOperationError,
+	sleep,
 	type IDataObject,
 	type IExecuteFunctions,
 	type IHttpRequestOptions,
@@ -47,7 +48,7 @@ function paging(resource: string, operation: string): INodeProperties[] {
 			displayName: 'Limit',
 			name: 'limit',
 			type: 'number',
-			typeOptions: { minValue: 1 },
+			typeOptions: { minValue: 1, numberPrecision: 0 },
 			default: 50,
 			description: 'Max number of results to return',
 			displayOptions: {
@@ -273,7 +274,7 @@ export class Virkly implements INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				placeholder: '4000115446',
+				placeholder: '4000000001',
 				description: "The person's participant number in the CVR register",
 				displayOptions: show('person', ['get']),
 			},
@@ -389,7 +390,12 @@ async function searchCompanies(ctx: IExecuteFunctions, i: number): Promise<IData
 	const size = Math.min(limit, SEARCH_PAGE_SIZE);
 	return collect(limit, async (n) => {
 		const offset = n * size;
-		const body = await call(ctx, i, searchRequest(params, size, offset), 'Search not found');
+		const body = await call(
+			ctx,
+			i,
+			searchRequest(params, size, offset),
+			'virkly API error (HTTP 404)',
+		);
 		const results = (body.results ?? []) as IDataObject[];
 		const hasMore =
 			typeof body.hasMore === 'boolean'
@@ -413,6 +419,16 @@ async function listBankruptcies(ctx: IExecuteFunctions, i: number): Promise<IDat
 	});
 }
 
+const MAX_RATE_LIMIT_RETRIES = 2;
+
+/** How long to wait before retrying a per-minute 429 (Retry-After, at most 60 s); null for anything else. */
+function retryAfterMs(response: IN8nHttpFullResponse): number | null {
+	const code = ((response.body as IDataObject | undefined)?.error as IDataObject | undefined)?.code;
+	if (response.statusCode !== 429 || code !== 'RATE_LIMIT_EXCEEDED') return null;
+	const seconds = Number(response.headers?.['retry-after']);
+	return Math.min(Number.isFinite(seconds) && seconds > 0 ? seconds : 60, 60) * 1000;
+}
+
 /** One API call: the response body, or an n8n error the user can act on. */
 async function call(
 	ctx: IExecuteFunctions,
@@ -421,14 +437,20 @@ async function call(
 	notFound: string,
 ): Promise<JsonObject> {
 	let response: IN8nHttpFullResponse;
-	try {
-		response = (await ctx.helpers.httpRequestWithAuthentication.call(
-			ctx,
-			'virklyApi',
-			request,
-		)) as IN8nHttpFullResponse;
-	} catch (error) {
-		throw new NodeApiError(ctx.getNode(), error as JsonObject, { itemIndex });
+	for (let attempt = 0; ; attempt++) {
+		try {
+			response = (await ctx.helpers.httpRequestWithAuthentication.call(
+				ctx,
+				'virklyApi',
+				request,
+			)) as IN8nHttpFullResponse;
+		} catch (error) {
+			throw new NodeApiError(ctx.getNode(), error as JsonObject, { itemIndex });
+		}
+		const wait = retryAfterMs(response);
+		// Per-minute limit (10/min on Free): wait it out so Return All keeps the pages it already paid for
+		if (wait === null || attempt >= MAX_RATE_LIMIT_RETRIES) break;
+		await sleep(wait);
 	}
 	const message = errorMessage(response.statusCode, response.body, notFound);
 	if (message) {
