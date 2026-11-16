@@ -13,9 +13,9 @@ Maps every requirement in n8n's docs to where this repo meets it. Sources (check
 | Name starts with `n8n-nodes-` | ✅ | `package.json` → `name: n8n-nodes-virkly` |
 | Keyword `n8n-community-node-package` | ✅ | `package.json` → `keywords` |
 | Nodes and credentials listed under `n8n` | ✅ | `package.json` → `n8n.nodes`, `n8n.credentials` |
-| Passes the linter (`npm run lint`) | ✅ | CI (`ci.yml`) and the publish job run `npm run lint` |
+| Passes the linter (`npm run lint`) | ✅ | CI (`ci.yml`) and the `verify` job in `publish.yml` run `npm run lint` |
 | Tested locally (`npm run dev`) | ✅ / 👤 | 43 unit tests on recorded fixtures (`test/`) run in CI. 👤 Before submitting, run `npm run dev`, add a Virkly API credential and run one Company → Get and the trigger's Fetch Test Event |
-| Scaffolded with the `n8n-node` CLI (recommended) | ✅ | `@n8n/node-cli` builds, lints and guards publishing (`prepublishOnly`) |
+| Scaffolded with the `n8n-node` CLI (recommended) | ✅ | `@n8n/node-cli` builds and lints; its `prepublishOnly` blocks a manual `npm publish` from a checkout |
 
 ## Technical guidelines
 
@@ -50,7 +50,7 @@ Maps every requirement in n8n's docs to where this repo meets it. Sources (check
 | Published from GitHub Actions with a provenance statement | ✅ | `.github/workflows/publish.yml`: on a `v*` tag, job `verify` lints, builds, tests, scans and packs (read-only, no secrets); job `publish` publishes that tarball with `npm publish --provenance --access public` on a GitHub-hosted runner |
 | `@n8n/node-cli` ≥ 0.23.0 as devDependency | ✅ | `package.json` → `@n8n/node-cli: 0.56.4` |
 | Tag matches the package version | ✅ | `verify` fails if the tag isn't `v<package.json version>` or the tagged commit isn't on main |
-| Workflow proven without publishing | ✅ / 👤 | Pull requests touching the workflow or `package.json` run `verify`, ending in `npm publish --dry-run` on the tarball. 👤 A dry run stops before the upload, so npm auth and the provenance attestation are first exercised by the real tag push: check the npm page shows "Built and signed on GitHub Actions" |
+| Workflow proven without publishing | ✅ / 👤 | Pull requests touching the workflow or `package.json` run `verify`, ending in `npm publish --dry-run` on the tarball. 👤 A dry run stops before the upload, so the `publish` job (npm upgrade, artifact download, npm auth, provenance attestation) first runs on the real tag push: watch that run and check the npm page shows "Built and signed on GitHub Actions" |
 | First publish (npm auth) | 👤 | npm only lets you add a trusted publisher to a package that already exists, so the first publish uses a token: npmjs.com → Access Tokens → Generate New Token → Granular, packages "Read and write" for all packages (the package doesn't exist yet), 7-day expiry, bypass 2FA on. Save it as repo secret `NPM_TOKEN` (github.com/virkly/n8n-nodes-virkly → Settings → Secrets and variables → Actions). Then on main: `git tag v0.1.0 && git push origin v0.1.0` |
 | Switch to trusted publishing | 👤 | After the first publish: npmjs.com → n8n-nodes-virkly → Settings → Trusted Publisher → GitHub Actions: owner `virkly`, repository `n8n-nodes-virkly`, workflow `publish.yml`, environment blank. Then set Publishing access to "Require two-factor authentication and disallow tokens", delete the `NPM_TOKEN` secret and revoke the token |
 
